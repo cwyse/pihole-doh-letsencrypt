@@ -18,13 +18,19 @@ services:
       - "443:443/tcp"
       - "${IP_ADDR}:53:53/tcp"
       - "${IP_ADDR}:53:53/udp"
+    cap_add:
+      - NET_ADMIN
     environment:
       DNS1: '10.0.0.2#5054'
       DNS2: 'no'
       IPv6: 'false'
-      TZ: 'America/Chicago'
+      TZ: 'America/New_York'
       DNSMASQ_LISTENING: 'all'
       WEBPASSWORD: '${ADMIN_PASSWORD}'
+    # Add your own custom hostnames you need for your domain
+    extra_hosts:
+      - 'udm.wysechoice.net udm:192.168.1.1'
+      - 'pi-hole.wysechoice.net pi-hole:192.168.1.2'
     networks:
       pihole_net:
         ipv4_address: 10.0.0.3
@@ -43,8 +49,7 @@ services:
     environment:
       LETSENCRYPT_USER_MAIL: '${EMAIL}'
       LEXICON_PROVIDER: 'cloudflare'
-      LEXICON_CLOUDFLARE_USERNAME: '${CF_USER}'
-      LEXICON_CLOUDFLARE_TOKEN: '${CF_TOKEN}'
+
       DEPLOY_HOOK: 'gen_certs.sh'
       CERTS_USER_OWNER: '33'
       CERTS_GROUP_OWNER: '33'
