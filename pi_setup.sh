@@ -44,15 +44,21 @@ if ! pip3 list | grep -F 'docker-compose' &>/dev/null; then
   pip3 install docker-compose
 fi
 
-if [ ! -d pihole-doh-letsencrypt ]; then
-  # https://github.com/SoarinFerret/pihole-doh-letsencrypt.git
-  git clone https://github.com/SoarinFerret/pihole-doh-letsencrypt.git
-  cd pihole-doh-letsencrypt
-fi
+#if [ ! -d pihole-doh-letsencrypt ]; then
+#  # https://github.com/SoarinFerret/pihole-doh-letsencrypt.git
+#  git clone https://github.com/SoarinFerret/pihole-doh-letsencrypt.git
+#  cd pihole-doh-letsencrypt
+#fi
 
 
+sudo mkdir -p /pihole_certs
 docker-compose pull
-docker-compose up
+docker-compose up -d
 
+# Remove password
 #docker exec pihole pihole -a -p
+
+# Create certificates
+#  Run once (may need to run in container (docker exec -it letsencrypt_doh /bin/bash)
+#docker exec -t letsencrypt_doh certbot certonly --standalone --preferred-challenges dns -d pi-hole.wysechoice.net -d udm.wysechoice.net -d qnap.wysechoice.net -d check-mk.wysechoice.net
 

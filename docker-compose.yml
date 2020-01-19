@@ -2,15 +2,15 @@ version: "3"
 
 services:
   cloudflared:
-    container_name: cloudflared
-    image: visibilityspots/cloudflared:amd64
+    container_name: cloudflared_doh
+    image: visibilityspots/cloudflared:arm
     restart: always
     networks:
       pihole_net:
         ipv4_address: 10.0.0.2
 
   pihole:
-    container_name: pihole
+    container_name: pihole_doh
     image: pihole/pihole:${PIHOLE_TAG}
     restart: always
     ports:
@@ -40,16 +40,17 @@ services:
     volumes:
       - 'pihole_etc:/etc/pihole/'
       - 'pihole_dnsmasq:/etc/dnsmasq.d/'
-      - 'pihole_certs:/etc/certs/:ro'
+      - '/pihole_certs:/etc/certs/:ro'
       - './external.conf:/etc/lighttpd/external.conf'
 
   letsencrypt:
-    container_name: letsencrypt
-    image: adferrand/letsencrypt-dns:${LE_TAG}
+    container_name: letsencrypt_doh
+    #image: adferrand/letsencrypt-dns:${LE_TAG}
+    image: cwyse/letsencrypt-dns:armv7l-latest
     environment:
       LETSENCRYPT_USER_MAIL: '${EMAIL}'
       LEXICON_PROVIDER: 'cloudflare'
-
+      LETSENCRYPT_SKIP_REGISTER: 'false'
       DEPLOY_HOOK: 'gen_certs.sh'
       CERTS_USER_OWNER: '33'
       CERTS_GROUP_OWNER: '33'
@@ -59,7 +60,7 @@ services:
       - ./gen_certs.sh:/usr/local/bin/gen_certs.sh
       - /var/run/docker.sock:/var/run/docker.sock
       - le_certs:/etc/letsencrypt
-      - pihole_certs:/pihole_certs
+      - /pihole_certs:/pihole_certs
     restart: always
 
 volumes:
